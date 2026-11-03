@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#176b3a"><link rel="manifest" href="manifest.json">
+<title>Kadapa Farming Supplies</title>
+<style>
+:root{--green:#176b3a;--green2:#23864d;--bg:#f4f7f3;--ink:#17231a;--muted:#66736a;--line:#dce5dc;--white:#fff}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,#12552e,#23864d);color:white;padding:20px 18px 24px;border-radius:0 0 24px 24px}
+.brand{display:flex;align-items:center;gap:12px}.logo{font-size:27px;background:#ffffff20;border:1px solid #ffffff40;border-radius:14px;padding:10px}
+h1{font-size:21px;margin:0}header p{margin:5px 0 0;color:#d9f2df;font-size:13px}
+main{max-width:760px;margin:auto;padding:16px 14px 90px}
+.tabs{display:flex;gap:8px;margin:0 0 16px}.tab{flex:1;border:1px solid var(--line);background:white;padding:11px;border-radius:12px;font-weight:650;color:#506157}.tab.active{background:var(--green);color:white;border-color:var(--green)}
+.card{background:white;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:13px;box-shadow:0 3px 12px #183d1b08}
+h2{font-size:17px;margin:0 0 13px}label{display:block;font-size:13px;font-weight:650;margin:12px 0 6px;color:#425047}
+input,select,textarea{width:100%;padding:12px;border:1px solid #ccd8ce;border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.service-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.service{border:1px solid var(--line);padding:13px;border-radius:12px;cursor:pointer;background:white}.service.selected{border:2px solid var(--green);background:#f0faf3;padding:12px}
+.service .emoji{font-size:25px}.service b{display:block;margin-top:5px;font-size:14px}.service small{color:var(--muted)}
+button{border:0;border-radius:12px;padding:13px 16px;background:var(--green);color:white;font:inherit;font-weight:700;cursor:pointer}
+button.secondary{background:#edf4ee;color:var(--green);border:1px solid #d4e4d6}
+button.full{width:100%;margin-top:14px}
+.note{font-size:12px;color:var(--muted);line-height:1.5}.success{padding:13px;background:#eaf8ed;border:1px solid #bce2c4;border-radius:12px;color:#14552c;margin:12px 0}
+.booking{border:1px solid var(--line);padding:12px;border-radius:12px;margin:10px 0}.booking-head{display:flex;justify-content:space-between;gap:8px}.pill{font-size:11px;background:#e9f5eb;color:#176b3a;border-radius:20px;padding:5px 8px;height:max-content;font-weight:700}
+.hidden{display:none!important}.empty{text-align:center;padding:25px;color:var(--muted)}footer{text-align:center;color:#89958b;font-size:12px;padding:20px}
+@media(max-width:420px){.grid{grid-template-columns:1fr 1fr}.service-grid{grid-template-columns:1fr 1fr}}
+</style>
+<script type="module" src="./app.js"></script>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="logo">🚜</div><div><h1>Kadapa Farming Supplies</h1><p>Farm machinery & agricultural services</p></div></div>
+</header>
+<main>
+ <div class="tabs"><button class="tab active" id="farmerTab" onclick="showTab('farmer')">Book a service</button><button class="tab" id="adminTab" onclick="showTab('admin')">Bookings / Admin</button></div>
+ <section id="farmer">
+  <div class="card">
+   <h2>1. Select a service</h2>
+   <div class="service-grid" id="services"></div>
+  </div>
+  <form class="card" id="bookingForm">
+   <h2>2. Booking details</h2>
+   <label>Farmer name *</label><input id="farmerName" required placeholder="Your full name">
+   <div class="grid"><div><label>Mobile number *</label><input id="phone" required inputmode="tel" pattern="[0-9]{10}" maxlength="10" placeholder="10-digit number"></div>
+   <div><label>Area / acres *</label><input id="acres" required type="number" min="0.1" step="0.1" placeholder="e.g. 3"></div></div>
+   <label>Village *</label><input id="village" required placeholder="Village / mandal">
+   <label>Field location / landmark</label><input id="location" placeholder="Optional landmark or GPS coordinates">
+   <div class="grid"><div><label>Date *</label><input id="date" type="date" required></div><div><label>Preferred time *</label><select id="time" required><option>Morning (6–10 AM)</option><option>Midday (10 AM–2 PM)</option><option>Afternoon (2–6 PM)</option></select></div></div>
+   <label>Notes</label><textarea id="notes" rows="2" placeholder="Crop, field condition, special requirements"></textarea>
+   <div class="success" id="priceBox">Choose a service to see an estimated charge.</div>
+   <p class="note">Instant booking confirms immediately in this demo. Live fleet availability and payment integration require a connected server.</p>
+   <button class="full" type="submit">Confirm instant booking</button>
+  </form>
+  <div id="confirmation"></div>
+ </section>
+ <section id="admin" class="hidden">
+  <div class="card"><h2>Booking management</h2><p class="note">Prototype admin view: bookings saved on this device/browser.</p><div class="grid"><button onclick="exportCSV()">Export CSV</button><button class="secondary" onclick="clearBookings()">Clear demo bookings</button></div></div>
+  <div id="bookingList"></div>
+ </section>
+ <footer>Kadapa Farming Supplies • Demo MVP</footer>
+</main>
+<script>
+const services=[
+ {id:'tractor',name:'Tractor',emoji:'🚜',rate:900,unit:'hour'},
+ {id:'rotavator',name:'Rotavator',emoji:'🌱',rate:1800,unit:'acre'},
+ {id:'cultivator',name:'Cultivator',emoji:'🪴',rate:1200,unit:'acre'},
+ {id:'seeddrill',name:'Seed drill',emoji:'🌾',rate:1600,unit:'acre'},
+ {id:'spraying',name:'Crop spraying',emoji:'💦',rate:500,unit:'acre'},
+ {id:'harvesting',name:'Harvesting',emoji:'🌾',rate:2500,unit:'acre'},
+ {id:'labour',name:'Farm labour',emoji:'👨‍🌾',rate:700,unit:'worker/day'},
+ {id:'custom',name:'Other machinery',emoji:'🛠️',rate:0,unit:'quote'}
+];
+let selected=services[0], allBookings=[];
+const $=id=>document.getElementById(id);
+function renderServices(){ $('services').innerHTML=services.map(s=>`<div class="service ${s.id===selected.id?'selected':''}" onclick="selectService('${s.id}')"><span class="emoji">${s.emoji}</span><b>${s.name}</b><small>${s.rate?`₹${s.rate}/${s.unit}`:'Price on request'}</small></div>`).join('');updatePrice();}
+function selectService(id){selected=services.find(s=>s.id===id);renderServices();}
+function updatePrice(){let acres=Number($('acres').value)||0;let amount=selected.rate*(selected.unit==='hour'?1:selected.unit==='worker/day'?1:acres);$('priceBox').textContent=selected.rate?`Estimated service charge: ₹${amount.toLocaleString('en-IN')}. Final amount may change after field inspection.`:'Price will be confirmed by our team.';}
+$('acres').addEventListener('input',updatePrice);
+const today=new Date();$('date').min=today.toISOString().slice(0,10);$('date').value=today.toISOString().slice(0,10);
+function showTab(tab){$('farmer').classList.toggle('hidden',tab!=='farmer');$('admin').classList.toggle('hidden',tab!=='admin');$('farmerTab').classList.toggle('active',tab==='farmer');$('adminTab').classList.toggle('active',tab==='admin');if(tab==='admin')renderBookings();}
+$('bookingForm').addEventListener('submit',async e=>{
+ e.preventDefault();const acres=Number($('acres').value);const price=selected.rate*(selected.unit==='hour'?1:selected.unit==='worker/day'?1:acres);
+ const b={name:$('farmerName').value.trim(),phone:$('phone').value.trim(),service:selected.name,acres,unit:selected.unit,village:$('village').value.trim(),location:$('location').value.trim(),date:$('date').value,time:$('time').value,notes:$('notes').value.trim(),estimate:price,status:'Confirmed',createdAt:new Date().toISOString()};
+ try {
+  if(window.KFS && window.KFS.createBooking){let id=await window.KFS.createBooking(b);$('confirmation').innerHTML=`<div class="success"><b>Booking confirmed!</b><br>Booking ID: ${id}<br>${b.service} • ${b.date} • ${b.village}<br>Estimate: ₹${price.toLocaleString('en-IN')}</div>`;}
+  else {let a=JSON.parse(localStorage.getItem('kfs_demo')||'[]');b.id='DEMO-'+Date.now();a.unshift(b);localStorage.setItem('kfs_demo',JSON.stringify(a));$('confirmation').innerHTML=`<div class="success"><b>Demo booking confirmed</b><br>${b.service} • ${b.date} • ${b.village}<br><small>Configure Firebase for cross-device live booking.</small></div>`;}
+  e.target.reset();$('date').value=today.toISOString().slice(0,10);updatePrice();
+ }catch(err){alert('Booking failed: '+err.message);}
+});
+async function renderBookings(){let a=[];try{a=window.KFS&&window.KFS.getBookings?await window.KFS.getBookings():JSON.parse(localStorage.getItem('kfs_demo')||'[]')}catch(e){a=[]}
+ $('bookingList').innerHTML=a.length?a.map(b=>`<div class="booking"><div class="booking-head"><b>${b.id||''} • ${b.service}</b><span class="pill">${b.status}</span></div><p><b>${b.name}</b> — ${b.phone}<br>${b.acres} ${b.unit==='hour'?'hour(s)':b.unit==='worker/day'?'worker/day':'acre(s)'} • ${b.village}<br>${b.date} • ${b.time}<br>Estimate: ₹${Number(b.estimate||0).toLocaleString('en-IN')}</p><p class="note">${b.location||''} ${b.notes||''}</p><button class="secondary" onclick="completeBooking('${b.id}')">Mark completed</button></div>`).join(''):'<div class="empty">No bookings yet.</div>'}
+async function completeBooking(id){if(window.KFS&&window.KFS.updateStatus)await window.KFS.updateStatus(id,'Completed');else{let a=JSON.parse(localStorage.getItem('kfs_demo')||'[]');a=a.map(b=>b.id===id?{...b,status:'Completed'}:b);localStorage.setItem('kfs_demo',JSON.stringify(a));}renderBookings();}
+function exportCSV(){alert('CSV export can be enabled in the connected admin dashboard.');}
+function clearBookings(){alert('For live data, bookings must be deleted from the secure admin console.');}
+window.selectService=selectService;window.showTab=showTab;window.completeBooking=completeBooking;window.exportCSV=exportCSV;window.clearBookings=clearBookings;
+renderServices();
+</script>
+</body>
+</html>

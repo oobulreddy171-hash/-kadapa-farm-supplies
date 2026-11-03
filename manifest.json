@@ -1,0 +1,8 @@
+{
+  "name": "Kadapa Farming Supplies",
+  "short_name": "Kadapa Farm",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f7f3",
+  "theme_color": "#176b3a"
+}
